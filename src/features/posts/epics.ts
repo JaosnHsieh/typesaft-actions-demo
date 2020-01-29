@@ -1,9 +1,10 @@
 import { Epic } from 'redux-observable';
-import { from, of } from 'rxjs';
+import { of, forkJoin } from 'rxjs';
 import { filter, switchMap, map, catchError } from 'rxjs/operators';
 import { RootAction, RootState, Services, isActionOf } from 'typesafe-actions';
 
 import { loadPostsAsync } from './actions';
+// import { loadTodosAsync} from '../todos/actions'
 // import { getPosts } from './selectors';
 
 export const loadPostsEpic: Epic<
@@ -16,11 +17,22 @@ export const loadPostsEpic: Epic<
   return action$.pipe(
     filter(isActionOf(loadPostsAsync.request)),
     switchMap(() =>
-      from(api.posts.loadPosts()).pipe(
-        map(loadPostsAsync.success),
+      forkJoin({
+        posts: api.posts.loadPosts(),
+        todos: api.todos.loadSnapshot(),
+      }).pipe(
+        map(vals => {
+          return loadPostsAsync.success(vals.posts);
+        }),
         catchError((message: string) => of(loadPostsAsync.failure(message)))
       )
     )
+    // switchMap(() =>
+    //   from(api.posts.loadPosts()).pipe(
+    //     map(loadPostsAsync.success),
+    //     catchError((message: string) => of(loadPostsAsync.failure(message)))
+    //   )
+    // )
   );
 };
 

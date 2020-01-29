@@ -20,6 +20,7 @@ type Props = ReturnType<typeof mapStateToProps> & typeof dispatchProps;
 function TodoList({ isLoading, posts = [], loadPosts }: Props) {
   return (
     <ul style={getStyle()}>
+      <div>state.posts.isLoadingPosts</div>
       <p>{isLoading ? 'loading' : 'not loading'}</p>
 
       <button
@@ -28,8 +29,12 @@ function TodoList({ isLoading, posts = [], loadPosts }: Props) {
           loadPosts();
         }}
       >
-        load Posts{' '}
+        load Posts from api
       </button>
+      <pre>
+        <div>state.posts.posts</div>
+        {JSON.stringify(posts, undefined, 2)}
+      </pre>
       {/* {todos.map(todo => (
         <li key={todo.id}>
           <TodoListItem
